@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-
-public class UserEntity {
+@Table(name = "usuario")
+public class UsuarioEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,8 +23,7 @@ public class UserEntity {
     //NotNull
     private String senha;
     //NotNull
-    @Enumerated(EnumType.STRING)
-    private Enum role;
+    private String role;
 
     //NotNull
     private Boolean ativo;
