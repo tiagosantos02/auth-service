@@ -1,4 +1,4 @@
-package com.auth_service.entity;
+package com.auth_service.model;
 
 import jakarta.persistence.*;
 
@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @Table(name = "usuario")
-public class UsuarioEntity {
+public class UsuarioModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
