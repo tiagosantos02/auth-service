@@ -1,4 +1,4 @@
-package com.auth_service.model;
+package com.auth_service.entity;
 
 import jakarta.persistence.*;
 
@@ -10,9 +10,11 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "usuario")
-public class UsuarioModel {
-
+public class UsuarioEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private  Long id;
@@ -27,6 +29,8 @@ public class UsuarioModel {
 
     //NotNull
     private Boolean ativo;
+
+    private String chaveRecuperacao;
 
     @CreationTimestamp
     private LocalDateTime dataCriacao;

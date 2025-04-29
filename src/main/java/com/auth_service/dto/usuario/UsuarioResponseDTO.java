@@ -1,4 +1,4 @@
-package com.auth_service.entity.usuario;
+package com.auth_service.dto.usuario;
 
 import lombok.Builder;
 
