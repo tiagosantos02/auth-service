@@ -5,7 +5,9 @@ import com.auth_service.entity.UsuarioEntity;
 import com.auth_service.repository.UsuarioRepository;
 import com.auth_service.service.builder.BuilderUtils;
 import com.auth_service.utils.JwtTokenUtil;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -62,13 +64,9 @@ public class UsuarioService {
     public LoginResponseDTO login (LoginRequestDTO loginRequestDTO){
       Optional<UsuarioEntity> usuarioEntity = usuarioRepository.findByEmail(loginRequestDTO.email());
       Optional<UsuarioEntity> usuarioEntity2 = usuarioRepository.findBySenha(loginRequestDTO.senha());
-
-//      if(usuarioEntity.isEmpty()){
-//          return "Usuario não Encontrado";
-//      } else if (usuarioEntity2.isEmpty()) {
-//          return "Senha Invalida";
-//
-//      }
+      if (usuarioEntity.isEmpty() || usuarioEntity2.isEmpty()){
+          throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Usuario ou senha incorreto " );
+      }
         String token = JwtTokenUtil.generateToken(usuarioEntity.get().getEmail());
         return BuilderUtils.toLoginResponseDTO(token,"BearerToken",loginRequestDTO.email()) ;
     }

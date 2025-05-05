@@ -13,7 +13,7 @@ public class BuilderUtils {
                 .nome(dto.nome())
                 .email(dto.email())
                 .senha(dto.senha())
-                .role(dto.role())
+                .role(String.valueOf(dto.role()))
                 .ativo(dto.ativo())
                 .build();
     }
