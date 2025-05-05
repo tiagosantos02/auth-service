@@ -1,12 +1,10 @@
 package com.auth_service.service;
 
-import com.auth_service.dto.usuario.AlterarSenhaRequestDTO;
-import com.auth_service.dto.usuario.RecuperacaoRequestDTO;
-import com.auth_service.dto.usuario.UsuarioRequestDTO;
-import com.auth_service.dto.usuario.UsuarioResponseDTO;
+import com.auth_service.dto.usuario.*;
 import com.auth_service.entity.UsuarioEntity;
 import com.auth_service.repository.UsuarioRepository;
 import com.auth_service.service.builder.BuilderUtils;
+import com.auth_service.utils.JwtTokenUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,10 +32,10 @@ public class UsuarioService {
     }
 
 
-    public UsuarioEntity saveUsuario(UsuarioRequestDTO usuarioRequestDTO) {
+    public UsuarioResponseDTO saveUsuario(UsuarioRequestDTO usuarioRequestDTO) {
         UsuarioEntity usuarioEntity = BuilderUtils.toUsuarioEntity(usuarioRequestDTO);
-        return usuarioRepository.save(usuarioEntity);
-
+        UsuarioEntity savedEntity = usuarioRepository.save(usuarioEntity);
+        return BuilderUtils.toUsuarioResponseDTO(savedEntity);
     }
 
     public void deleteUsuario(Long id) {
@@ -60,6 +58,19 @@ public class UsuarioService {
         usuarioEntity.setChaveRecuperacao(null);
         usuarioRepository.save(usuarioEntity);
         return "Alterado com sucesso";
+    }
+    public LoginResponseDTO login (LoginRequestDTO loginRequestDTO){
+      Optional<UsuarioEntity> usuarioEntity = usuarioRepository.findByEmail(loginRequestDTO.email());
+      Optional<UsuarioEntity> usuarioEntity2 = usuarioRepository.findBySenha(loginRequestDTO.senha());
+
+//      if(usuarioEntity.isEmpty()){
+//          return "Usuario não Encontrado";
+//      } else if (usuarioEntity2.isEmpty()) {
+//          return "Senha Invalida";
+//
+//      }
+        String token = JwtTokenUtil.generateToken(usuarioEntity.get().getEmail());
+        return BuilderUtils.toLoginResponseDTO(token,"BearerToken",loginRequestDTO.email()) ;
     }
 
 }

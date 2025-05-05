@@ -1,10 +1,6 @@
 package com.auth_service.api.v1;
 
-import com.auth_service.dto.usuario.AlterarSenhaRequestDTO;
-import com.auth_service.dto.usuario.RecuperacaoRequestDTO;
-import com.auth_service.dto.usuario.UsuarioRequestDTO;
-import com.auth_service.dto.usuario.UsuarioResponseDTO;
-import com.auth_service.entity.UsuarioEntity;
+import com.auth_service.dto.usuario.*;
 import com.auth_service.service.UsuarioService;
 
 import org.springframework.web.bind.annotation.*;
@@ -33,9 +29,9 @@ public class UsuarioRest {
         return usuarioService.getUsuarioById(id);
     }
 
-    @PostMapping("/casdatro-usuario")
-    public UsuarioEntity saveUsuario(@RequestBody UsuarioRequestDTO usuarioRequestDTO) {
-        return usuarioService.saveUsuario(usuarioRequestDTO);
+    @PostMapping("/cadastro-usuario")
+    public UsuarioResponseDTO saveUsuario(@RequestBody UsuarioRequestDTO usuarioRequestDTO) {
+        return usuarioService.saveUsuario(usuarioRequestDTO); // Agora retorna DTO, não a Entity.
     }
 
     @DeleteMapping("/{id}")
@@ -52,6 +48,10 @@ public class UsuarioRest {
         return usuarioService.alterarSenha(alterarSenhaRequestDTO);
 
 
+    }
+    @PostMapping("/login")
+    public LoginResponseDTO Login(LoginRequestDTO loginRequestDTO ){
+    return  usuarioService.login(loginRequestDTO);
     }
 
 }
