@@ -5,6 +5,7 @@ import com.auth_service.entity.UsuarioEntity;
 import com.auth_service.repository.UsuarioRepository;
 import com.auth_service.service.builder.BuilderUtils;
 import com.auth_service.utils.JwtTokenUtil;
+import com.auth_service.utils.PasswordEncoder;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -17,9 +18,13 @@ import java.util.UUID;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtTokenUtil jwtTokenUtil;
 
-    public UsuarioService(UsuarioRepository usuarioRepository) {
+    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder, JwtTokenUtil jwtTokenUtil) {
         this.usuarioRepository = usuarioRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtTokenUtil = jwtTokenUtil;
     }
 
     public List<UsuarioResponseDTO> getAllUsuarios() {
@@ -34,8 +39,11 @@ public class UsuarioService {
     }
 
 
-    public UsuarioResponseDTO saveUsuario(UsuarioRequestDTO usuarioRequestDTO) {
+    public UsuarioResponseDTO saveUsuario(UsuarioRequestDTO usuarioRequestDTO)
+    {
         UsuarioEntity usuarioEntity = BuilderUtils.toUsuarioEntity(usuarioRequestDTO);
+        // Encrypt the password before saving
+        usuarioEntity.setSenha(passwordEncoder.encode(usuarioEntity.getSenha()));
         UsuarioEntity savedEntity = usuarioRepository.save(usuarioEntity);
         return BuilderUtils.toUsuarioResponseDTO(savedEntity);
     }
@@ -56,19 +64,27 @@ public class UsuarioService {
     }
     public String  alterarSenha(AlterarSenhaRequestDTO alterarSenhaRequestDTO) {
         UsuarioEntity usuarioEntity = usuarioRepository.findByEmailAndChaveRecuperacao(alterarSenhaRequestDTO.email(), alterarSenhaRequestDTO.chaveRecuperacao()).orElseThrow(()->new RuntimeException("usuario Nao encontrado"));
-        usuarioEntity.setSenha(alterarSenhaRequestDTO.senha());
+        // Encrypt the new password
+        usuarioEntity.setSenha(passwordEncoder.encode(alterarSenhaRequestDTO.senha()));
         usuarioEntity.setChaveRecuperacao(null);
         usuarioRepository.save(usuarioEntity);
         return "Alterado com sucesso";
     }
     public LoginResponseDTO login (LoginRequestDTO loginRequestDTO){
-      Optional<UsuarioEntity> usuarioEntity = usuarioRepository.findByEmail(loginRequestDTO.email());
-      Optional<UsuarioEntity> usuarioEntity2 = usuarioRepository.findBySenha(loginRequestDTO.senha());
-      if (usuarioEntity.isEmpty() || usuarioEntity2.isEmpty()){
-          throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"Usuario ou senha incorreto " );
+      Optional<UsuarioEntity> usuarioOptional = usuarioRepository.findByEmail(loginRequestDTO.email());
+
+      if (usuarioOptional.isEmpty()) {
+          throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário ou senha incorretos");
       }
-        String token = JwtTokenUtil.generateToken(usuarioEntity.get().getEmail());
-        return BuilderUtils.toLoginResponseDTO(token,"BearerToken",loginRequestDTO.email()) ;
+
+      UsuarioEntity usuario = usuarioOptional.get();
+
+      if (!passwordEncoder.matches(loginRequestDTO.senha(), usuario.getSenha())) {
+          throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuário ou senha incorretos");
+      }
+
+      String token = jwtTokenUtil.generateToken(usuario.getEmail());
+      return BuilderUtils.toLoginResponseDTO(token, "BearerToken", loginRequestDTO.email());
     }
 
 }
