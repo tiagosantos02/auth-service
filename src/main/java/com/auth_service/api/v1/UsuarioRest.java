@@ -31,7 +31,7 @@ public class UsuarioRest {
 
     @PostMapping("/cadastro-usuario")
     public UsuarioResponseDTO saveUsuario(@RequestBody UsuarioRequestDTO usuarioRequestDTO) {
-        return usuarioService.saveUsuario(usuarioRequestDTO); // Agora retorna DTO, não a Entity.
+        return usuarioService.saveUsuario(usuarioRequestDTO);
     }
 
     @DeleteMapping("/{id}")

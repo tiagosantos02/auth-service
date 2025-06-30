@@ -53,11 +53,7 @@ public class UsuarioService {
     }
 
     public String recuperarSenha(RecuperacaoRequestDTO recuperacaoRequestDTO) {
-//        UsuarioEntity usuarioEntity = usuarioRepository.findByEmail(recuperacaoRequestDTO.email());
-//        if (usuarioEntity == null) {
-//            throw new RuntimeException("Usuario Nao encontrado");
-//        }
-        UsuarioEntity usuarioEntity = usuarioRepository.findByEmail(recuperacaoRequestDTO.email()).orElseThrow(()->new RuntimeException("usuario Nao encontrado"));
+        UsuarioEntity usuarioEntity = usuarioRepository.findByEmail(recuperacaoRequestDTO.email()).orElseThrow(()->new RuntimeException("Usuario Nao encontrado"));
         usuarioEntity.setChaveRecuperacao(UUID.randomUUID().toString());
         usuarioRepository.save(usuarioEntity);
         return "Recuperado: " + usuarioEntity.getChaveRecuperacao();
